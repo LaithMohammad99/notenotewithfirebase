@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
             automaticallyImplyLeading: false,
-          title: Text('Note Home'),centerTitle: true,toolbarHeight: 100,
+           title: Text('Note Home'),centerTitle: true,toolbarHeight: 100,
         actions: [
           IconButton(onPressed: ()async{
             await FirebaseAuth.instance.signOut();
