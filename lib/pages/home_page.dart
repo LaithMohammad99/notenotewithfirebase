@@ -77,8 +77,26 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  addDataFromFireStoreToDocs(){
+   var userRef= FirebaseFirestore.instance.collection('users');
+   // userRef.add({"user_name":"laith new",
+   //              "age":22,
+   //              "email":"laithnew@gmail.com",
+   //              "phone":0785121484});
+    userRef.doc('4').set({
+      "name":"ahmad",
+      "age":2
+    });
+  }
+  upDateDataFireStoreIntoDocs(){
+    var userRef=FirebaseFirestore.instance.collection('users');
+    userRef.doc('4').update({});
+
+  }
+
   @override
   void initState() {
+
     liveConnectionFireBase();
     super.initState();
   }
