@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:notewithfirebase/pages/home_page.dart';
-import 'package:notewithfirebase/pages/sign_in.dart';
+import 'package:notewithfirebase/pages/auth/sign_in.dart';
 
 late bool isLogin;
 void main() async{

@@ -2,7 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notewithfirebase/pages/home_page.dart';
-import 'package:notewithfirebase/pages/register.dart';
+import 'package:notewithfirebase/pages/auth/register.dart';
 
 
 enum FormType { login, register }

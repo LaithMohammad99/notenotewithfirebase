@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:notewithfirebase/pages/sign_in.dart';
+import 'package:notewithfirebase/pages/auth/sign_in.dart';
 import 'package:notewithfirebase/widget/app_text_field.dart';
 
 class RegisterPage extends StatefulWidget {
