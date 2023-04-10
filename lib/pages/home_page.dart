@@ -17,127 +17,24 @@ class _HomePageState extends State<HomePage> {
     print(user?.email ?? "no email");
   }
 
-  getAllData() async {
-    CollectionReference users = FirebaseFirestore.instance.collection("users");
-    await users.orderBy('age', descending: true).limit(2).get().then((value) {
+  List user = [];
+  var noteRef = FirebaseFirestore.instance.collection('note');
+
+  void getAllDataUsers() async {
+    var responseBody = noteRef.get();
+    await noteRef.get().then((value) {
       value.docs.forEach((element) {
-        print(element.data());
-        print("=======================================");
-      });
-    });
-  }
-
-  getOneDoc() async {
-    DocumentReference docs = FirebaseFirestore.instance
-        .collection('users')
-        .doc("0Kzc5PRvmU6cbiEPjKvH");
-    await docs.get().then((value) {
-      print(value.data());
-      print("----------------------------------------,,-------------------");
-    });
-  }
-
-  //where("lang",here....)
-  //where in is used for more if
-  //array contain Check one value
-  //array containAny more on check
-  getDataByAge() async {
-    var userRef = FirebaseFirestore.instance.collection("users");
-    await userRef.get().then((QuerySnapshot<Map<String, dynamic>> value) {
-      value.docs.forEach((element) {
-        print(element.data()["user_name"]);
-      });
-    });
-  }
-
-  filterTowCollection() async {
-    var reference = FirebaseFirestore.instance.collection('users');
-    await reference.get().then((value) => {
-          value.docs.forEach((element) {
-            print('user name ${element.data()['user_name']}');
-            print('======================================================');
-            print('age${element.data()['phone']}');
-            print('======================================================');
-            print('email ${element.data()['email']}');
-            print('======================================================');
-          })
+        setState(() {
+          user.add(element.data());
         });
-  }
-
-  liveConnectionFireBase() async {
-    FirebaseFirestore.instance.collection('users').snapshots().listen((event) {
-      event.docs.forEach((element) {
-        print(element.data()['age']);
       });
     });
   }
-
-  addDataFromFireStoreToDocs() async{
-    var userRef = FirebaseFirestore.instance.collection('users');
-    // userRef.add({"user_name":"laith new",
-    //              "age":22,
-    //              "email":"laithnew@gmail.com",
-    //              "phone":0785121484});
-  await  userRef.doc('4').set({"name": "ahmad", "age": 2});
-  }
-
-  upDateDataFireStoreIntoDocs() async{
-    var userRef = FirebaseFirestore.instance.collection('users');
-    await userRef.doc('4').update({});
-  }
-
-  deleteDocs() async{
-    var userRef = FirebaseFirestore.instance.collection('users');
-  await  userRef
-        .doc('4')
-        .delete()
-        .then((value) => {print('successfully')})
-        .catchError((onError) {
-      print('Error Not Successfully ${onError}');
-    });
-  }
-
-  nestedCollection() async{
-    var userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc('01qXF4plvw6uAsewALb0')
-        .collection('address');
-
-  await  userRef.doc('1FvsFHQAGLvxcZPywWjv').get().then((value) {}).catchError((onError){});
-  }
-
-  trans() async{
-    var docRef=FirebaseFirestore.instance.collection('users').doc('01qXF4plvw6uAsewALb0');
- FirebaseFirestore.instance.runTransaction((transaction)async {
-   //start trans
-
-   DocumentSnapshot docData=await transaction.get(docRef);
-  if(docData.exists){
-    transaction.update(docRef, {});
-    print('true');
-  }
-
-
-   //end transd
- });
-
-  }
-
-  var docsOne=FirebaseFirestore.instance.collection('users').doc('01qXF4plvw6uAsewALb0');
-  var docsTow=FirebaseFirestore.instance.collection('users').doc('rwuUxFog2Pogx6Qw9jNo');
-
-
-  batchWrite()async{
-    var batch=FirebaseFirestore.instance.batch();
-    batch.delete(docsOne);
-    batch.update(docsTow, {});
-  }
-
 
   @override
   void initState() {
-    deleteDocs();
-    liveConnectionFireBase();
+    getAllDataUsers();
+
     super.initState();
   }
 
@@ -162,13 +59,79 @@ class _HomePageState extends State<HomePage> {
                 ))
           ],
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Home'),
-          ],
+        body: StreamBuilder(
+          stream: noteRef.snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if(snapshot.hasData) {
+              return Container(
+                width: 500,
+                child: ListView.separated(itemBuilder: (context, index) =>
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                           // Image.network('${snapshot.data.docs['image']}'),
+                            Text('${snapshot.data.docs[index].data()['note']}',
+                                style: TextStyle(fontSize: 16)),
+                            Text('${snapshot.data.docs[index].data()['title']}',
+                                style: TextStyle(fontSize: 16)),
+                            Text('${snapshot.data.docs[index].data()['userId']}',
+                                style: TextStyle(fontSize: 16)),
+                          ],
+
+
+                        ),
+                      ),
+                    ),
+                    separatorBuilder: (context, index) =>
+                        Divider(color: Colors.blue,),
+                    itemCount: snapshot.data.docs.length),
+              );
+            }
+            if(snapshot.hasError) {
+              return Text('ERROR');
+            }
+            if(snapshot.connectionState==ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+        return Text('State: ${snapshot.connectionState}');
+          },
         ),
       ),
     );
   }
 }
+// user.isEmpty?CircularProgressIndicator(
+// color: Colors.cyan,
+//
+// ): Column(
+// children: [
+// SizedBox(height: 22,),
+// SizedBox(
+// height: MediaQuery.of(context).size.height*0.5,
+// width: MediaQuery.of(context).size.width,
+// child:ListView.separated(itemBuilder: (context, index) =>Container(
+// width: 100,
+//
+// child: Padding(
+// padding: const EdgeInsets.all(8.0),
+// child: Column(
+// crossAxisAlignment: CrossAxisAlignment.start,
+// children: [
+// Text('${user[index]['user_name']}',style: TextStyle(fontSize: 16),),
+// Text('${user[index]['phone']}',style: TextStyle(fontSize: 16)),
+// Text('${user[index]['age']}',style: TextStyle(fontSize: 16)),
+// ],
+//
+//
+// ),
+// ),
+// ),
+// separatorBuilder: (context,index)=>Divider(color: Colors.blue,),
+// itemCount: user.length),
+// ),
+//
+//
+// ]
