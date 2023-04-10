@@ -16,11 +16,11 @@ class _HomePageState extends State<HomePage> {
     final user = FirebaseAuth.instance.currentUser;
     print(user?.email ?? "no email");
   }
+
   getAllData() async {
     CollectionReference users = FirebaseFirestore.instance.collection("users");
-    await users.orderBy('age',descending: true).limit(2).get().then(( value) {
-      value.docs.forEach(( element) {
-
+    await users.orderBy('age', descending: true).limit(2).get().then((value) {
+      value.docs.forEach((element) {
         print(element.data());
         print("=======================================");
       });
@@ -28,14 +28,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   getOneDoc() async {
-    DocumentReference docs = FirebaseFirestore.instance.collection('users').doc(
-        "0Kzc5PRvmU6cbiEPjKvH");
+    DocumentReference docs = FirebaseFirestore.instance
+        .collection('users')
+        .doc("0Kzc5PRvmU6cbiEPjKvH");
     await docs.get().then((value) {
-
       print(value.data());
       print("----------------------------------------,,-------------------");
     });
   }
+
   //where("lang",here....)
   //where in is used for more if
   //array contain Check one value
@@ -49,54 +50,93 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  filterTowCollection ()async{
-    var reference= FirebaseFirestore.instance.collection('users');
-   await reference.get().then((value) =>
-    {
-      value.docs.forEach((element) {
-        print('user name ${element.data()['user_name']}');
-        print('======================================================');
-        print('age${element.data()['phone']}');
-        print('======================================================');
-        print('email ${element.data()['email']}');
-        print('======================================================');
-
-
-
-
-      })
-    });
+  filterTowCollection() async {
+    var reference = FirebaseFirestore.instance.collection('users');
+    await reference.get().then((value) => {
+          value.docs.forEach((element) {
+            print('user name ${element.data()['user_name']}');
+            print('======================================================');
+            print('age${element.data()['phone']}');
+            print('======================================================');
+            print('email ${element.data()['email']}');
+            print('======================================================');
+          })
+        });
   }
-  liveConnectionFireBase()async{
+
+  liveConnectionFireBase() async {
     FirebaseFirestore.instance.collection('users').snapshots().listen((event) {
       event.docs.forEach((element) {
         print(element.data()['age']);
-
       });
-
     });
   }
 
-  addDataFromFireStoreToDocs(){
-   var userRef= FirebaseFirestore.instance.collection('users');
-   // userRef.add({"user_name":"laith new",
-   //              "age":22,
-   //              "email":"laithnew@gmail.com",
-   //              "phone":0785121484});
-    userRef.doc('4').set({
-      "name":"ahmad",
-      "age":2
+  addDataFromFireStoreToDocs() async{
+    var userRef = FirebaseFirestore.instance.collection('users');
+    // userRef.add({"user_name":"laith new",
+    //              "age":22,
+    //              "email":"laithnew@gmail.com",
+    //              "phone":0785121484});
+  await  userRef.doc('4').set({"name": "ahmad", "age": 2});
+  }
+
+  upDateDataFireStoreIntoDocs() async{
+    var userRef = FirebaseFirestore.instance.collection('users');
+    await userRef.doc('4').update({});
+  }
+
+  deleteDocs() async{
+    var userRef = FirebaseFirestore.instance.collection('users');
+  await  userRef
+        .doc('4')
+        .delete()
+        .then((value) => {print('successfully')})
+        .catchError((onError) {
+      print('Error Not Successfully ${onError}');
     });
   }
-  upDateDataFireStoreIntoDocs(){
-    var userRef=FirebaseFirestore.instance.collection('users');
-    userRef.doc('4').update({});
+
+  nestedCollection() async{
+    var userRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc('01qXF4plvw6uAsewALb0')
+        .collection('address');
+
+  await  userRef.doc('1FvsFHQAGLvxcZPywWjv').get().then((value) {}).catchError((onError){});
+  }
+
+  trans() async{
+    var docRef=FirebaseFirestore.instance.collection('users').doc('01qXF4plvw6uAsewALb0');
+ FirebaseFirestore.instance.runTransaction((transaction)async {
+   //start trans
+
+   DocumentSnapshot docData=await transaction.get(docRef);
+  if(docData.exists){
+    transaction.update(docRef, {});
+    print('true');
+  }
+
+
+   //end transd
+ });
 
   }
+
+  var docsOne=FirebaseFirestore.instance.collection('users').doc('01qXF4plvw6uAsewALb0');
+  var docsTow=FirebaseFirestore.instance.collection('users').doc('rwuUxFog2Pogx6Qw9jNo');
+
+
+  batchWrite()async{
+    var batch=FirebaseFirestore.instance.batch();
+    batch.delete(docsOne);
+    batch.update(docsTow, {});
+  }
+
 
   @override
   void initState() {
-
+    deleteDocs();
     liveConnectionFireBase();
     super.initState();
   }
@@ -111,10 +151,15 @@ class _HomePageState extends State<HomePage> {
           centerTitle: true,
           toolbarHeight: 100,
           actions: [
-            IconButton(onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, 'Login');
-            }, icon: Icon(Icons.exit_to_app, color: Colors.white,))
+            IconButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacementNamed(context, 'Login');
+                },
+                icon: Icon(
+                  Icons.exit_to_app,
+                  color: Colors.white,
+                ))
           ],
         ),
         body: Column(
